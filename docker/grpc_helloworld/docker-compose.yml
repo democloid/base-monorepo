@@ -1,0 +1,31 @@
+version: '3'
+networks:
+  bridge:
+    driver: bridge
+services:
+  # The container that runs the client
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile_client
+    container_name: grpc-helloworld-client
+    # TODO: better way to reference relative path to repo?
+    volumes:
+      - <full path of binary>:/usr/local/bin/app
+    command: [ "/usr/local/bin/app", "-name", "client", "-n", "4"]
+    # Otherwise: command: /usr/local/bin/app -name client -n 4
+    depends_on:
+      - server
+    networks:
+      - bridge
+  # The container that runs the server
+  server:
+    build: .
+    container_name: grpc-helloworld-server
+    ports:
+      - "52351:52351"
+    volumes:
+      - <full path of binary>:/usr/local/bin/app
+    command: /usr/local/bin/app
+    networks:
+      - bridge
